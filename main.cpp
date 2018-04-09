@@ -1,6 +1,6 @@
 
 //Headers
-#include<iostream>
+#include <iostream>
 #include <fstream>
 #include <unistd.h>
 #include <stdlib.h>
@@ -8,7 +8,10 @@
 #include <unistd.h>
 #include <map>
 #include <iterator>
-#include<stdbool.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string>
+#include <limits>
 
 using namespace std;
 
@@ -44,23 +47,27 @@ void printFileContent(string filename);
 void sleepDuration(unsigned int duration);
 void getPlayerIntro();
 bool getPlayerPlayChoice();
-void startGame();
+void startGame(int tossResult);
 void clrscr();
 void lost();
-int random();
-bool toss();
+int getRandom();
+int toss();
+void loadGame();
+void humanTurn();
+void botTurn();
+void gameStatusDisplay();
+int game(int dieFaceValue);
 
 int main(){
 
-    bool tossResult;
-
+    int tossResult;
     clrscr();
     getPlayerIntro();
     if(getPlayerPlayChoice()){
         welcomePlayer();
         tossResult = toss();
-        tossResultDisplay(tossResult);
         loadGame();
+        cout << tossResult;
         startGame(tossResult);
     }else{
         lost();
@@ -69,7 +76,8 @@ int main(){
 }
 
 
-void startGame(bool tossResult){
+void startGame(int tossResult){
+    cin.ignore(numeric_limits<streamsize>::max(), '\n' );
     do{
         clrscr();
         gameStatusDisplay();
@@ -85,77 +93,61 @@ void startGame(bool tossResult){
 
 void gameStatusDisplay(){
     printFileContent("game_title.txt");
-    cout << playerName + " Position : "+ playerPositionOnBoard << endl;
-    cout << botName + " Position : " + botPositionOnBoard << endl;
+    cout << playerName << " Position : "<< playerPositionOnBoard << endl;
+    cout << botName << " Position : " << botPositionOnBoard << "\n\n";
+    cout <<"------------------------------------------------------------------------------\n";
 }
 
 void humanTurn(){
     clrscr();
-    cout << playerName+ " Turn ! Press ENTER to roll !\n\n";
-    cin.ignore();
-    int randomValue = random();
-    cout << playerName + " GOT "+ randomValue + " !";
+    int character;
+    gameStatusDisplay();
+    cout << playerName << " Turn ! Press ENTER to roll ! ";
+    cin.get(); 
+    cin.clear();
+    int randomValue = getRandom();
+    cout << playerName << " GOT "<< randomValue << " !";
     game(randomValue);
     sleepDuration(turnSeconds);
+    return;
 }
 
 void botTurn(){
     clrscr();
+    gameStatusDisplay();
     cout << botName + " Rolling !\n\n";
-    sleepDuration(turnSeconds);
-    int randomValue = random();
-    cout << botName + " GOT "+ randomValue + " !\n\n";
+    int randomValue = getRandom();
+    cout << botName << " GOT "<< randomValue << " !\n\n";
     game(randomValue);
+    sleepDuration(turnSeconds);
+    return;
 }
 
 
 int game(int dieFaceValue){
 
+    cout << "twinkle twinkle !\n";
 }
 
 
-void tossResultDisplay(bool tossResult){
+int toss(){
     clrscr();
-    if(tossResult == true){
-        cout << playerName + " won the TOSS, will PLAY first !";
+    int tossVal =  rand();
+    int playerFlag;
+    if(tossVal % 2 != 0){
+        cout << playerName << " won the TOSS, will PLAY first !\n";
+        playerFlag = 1;
     }else{
-        cout << botName + " won the TOSS, will PLAY first !";
+        cout << botName << " won the TOSS, will PLAY first !\n";
+        playerFlag = 0;
     }
-}
-
-bool toss(){
-    char choiceCharacter;
-    do{
-        clrscr();
-        cout << "Your Call ? (h/t) : ";
-        cin >> choiceCharacter;
-        fflush(stdin);
-        if(choiceCharacter == 'h' || choiceCharacter == 't'){
-            break; 
-        }
-    }while(1);
-
-    int tossVal =  rand() % 100 + 1;
-    if(tossVal % 2 == 0 && choiceCharacter == 't'){
-        return true;
-    }else if(tossVal % 2 == 1 && choiceCharacter == 'h'){
-        return true;
-    }else{
-        return false;
-    }
+    sleepDuration(turnSeconds);
+    return playerFlag;
 }
 
 
-int random(){
-    do{
-        int randomNumber1 =  rand() % 6 + 1;
-        int randomNumber2 =  rand() % 6 + 1;
-        int randomNumber3 =  rand() % 6 + 1;
-        int finalRandom = (randomNumber1+randomNumber2+randomNumber3)/3;
-        if(finalRandom >= 1 && finalRandom <= 6){
-            return finalRandom;
-        }
-    }while(1);
+int getRandom(){
+    return rand() % 6 + 1;
 }
 
 void welcomePlayer(){
@@ -171,18 +163,17 @@ void getPlayerIntro(){
 }
 
 bool getPlayerPlayChoice(){
-    char choiceCharacter;
+    int choice;
     do{
         clrscr();
-        cout << "Hello "+playerName+" ! Are you ready ?(y/n)";
-        cin >> choiceCharacter;
-        fflush(stdin);
-    if(choiceCharacter == 'n'){
-        return false;
-    }
-    if(choiceCharacter == 'y'){
-        return true;
-    }
+        cout << "Hello " << playerName << " ! Are you ready ?(1/0)";
+        cin >> choice;
+        if(choice == 0){
+            return false;
+        }
+        if(choice == 1){
+            return true;
+        }
     }while(1);
 }
 
@@ -195,6 +186,8 @@ void lost(){
 
 
 void loadGame(){
+    clrscr();
+    cout << "Loading game.....\n";
     snake.insert(pair <int, int> (17,13));
     snake.insert(pair <int, int> (52,29));
     snake.insert(pair <int, int> (57,40));
@@ -210,13 +203,10 @@ void loadGame(){
     ladder.insert(pair <int, int> (75,86));
     ladder.insert(pair <int, int> (80,100));
     ladder.insert(pair <int, int> (90,91));
+    sleepDuration(turnSeconds);
+    cout << "Loaded !\n";
+    sleepDuration(turnSeconds);
 }
-
-
-
-
-
-
 
 void sleepDuration(unsigned int duration){
     usleep(duration);
@@ -237,8 +227,7 @@ void printFileContent(string filename){
     Reader.close ();                           //Close file
 }
 
-string getFileContents (ifstream& File)
-{
+string getFileContents (ifstream& File){
     string Lines = "";        //All lines
     
     if (File)                      //Check if everything is good
