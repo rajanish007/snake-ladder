@@ -7,14 +7,19 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <map>
+#include <vector>
+#include <math.h>
 #include <iterator>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string>
 #include <limits>
+#include <random>
 
+//Namespace
 using namespace std;
 
+//Defintions
 #define startIndex 0
 #define endIndex 100
 #define dieFaceCount 6
@@ -25,10 +30,15 @@ static const int welcomeSeconds=5*multiplier;
 static const int turnSeconds=4*multiplier;
 static const int lostMessageSeconds=8*multiplier;
 
+
+//Files
+static const string COMPUTER_WIN_FILE = "assets/computer_win.txt";
+static const string HUMAN_WIN_FILE = "assets/human_win.txt";
+
 //Game Board Configuration
 static map <int, int> snake;
 static map <int, int> ladder;
-int minScore = 0;
+
 int maxScore = 100;
 int botPositionOnBoard = startIndex;
 int playerPositionOnBoard = startIndex;
@@ -37,7 +47,7 @@ bool humanOpenend = false;
 
 //Global variables
 string playerName;
-string botName="COMPUTER";
+string botName = "COMPUTER";
 
 
 //Function prototypes
@@ -61,104 +71,149 @@ void changePlayerPosition(int newPosition);
 void changeBotPosition(int newPosition);
 void checkSnakeOrLadder(int newPosition,string player);
 
+
+/**
+*Driver Method
+*
+*/
 int main(){
 
-    int tossResult;
+    int tossResult = 0;
+
     clrscr();
+
     getPlayerIntro();
+
     if(getPlayerPlayChoice()){
+
         welcomePlayer();
+
         tossResult = toss();
+
         loadGame();
+
         cout << tossResult;
+
         startGame(tossResult);
+
     }else{
+
         seeYouLater();
     }
+
     return 0;
 }
 
 
 void startGame(int tossResult){
+
     cin.ignore(numeric_limits<streamsize>::max(), '\n' );
+
     do{
         clrscr();
         gameStatusDisplay();
+
         if(tossResult){
             humanTurn();
             botTurn();
-        }else{
+        }
+        else{
             botTurn();
             humanTurn();
         }
+
     }while(botPositionOnBoard != maxScore && playerPositionOnBoard != maxScore);
+
     if(botPositionOnBoard == maxScore){
-        printFileContent("computer_win.txt");
+        printFileContent(COMPUTER_WIN_FILE);
         sleepDuration(welcomeSeconds);
         seeYouLater();
-    }else{
-        printFileContent("human_win.txt");
     }
+    else{
+        printFileContent(HUMAN_WIN_FILE);
+    }
+
 }
 
 void gameStatusDisplay(){
-    printFileContent("game_title.txt");
+
+    printFileContent("assets/game_title.txt");
+
     cout << playerName << " POSITION : "<< playerPositionOnBoard << endl;
-    cout << botName << " POSITION : " << botPositionOnBoard << "\n\n";
-    cout <<"------------------------------------------------------------------------------\n";
+    cout << botName << " POSITION : " << botPositionOnBoard << "\n";
+    cout <<"------------------------------------------------------------------------------\n\n\n";
 }
 
 void humanTurn(){
-    clrscr();
+
     int character;
+    int randomValue = getRandom();
+
+    clrscr();   
     gameStatusDisplay();
-    cout << playerName << " TURN ! \nPress ENTER to roll ! ";
+
+    cout << playerName << " TURN ! PRESS ENTER TO ROLL ! \n" << endl;
     cin.get(); 
     cin.clear();
-    int randomValue = getRandom();
+    
     cout << playerName << " GOT "<< randomValue << " !\n";
+
     game(randomValue,playerName);
+
     sleepDuration(turnSeconds);
-    return;
+
 }
 
 void botTurn(){
+
+    int randomValue = getRandom();
+
     clrscr();
     gameStatusDisplay();
-    cout << botName + " TURN !\n";
-    int randomValue = getRandom();
+
+    cout << botName + " TURN !\n\n";
+    
     cout << botName << " GOT "<< randomValue << " !\n\n";
     game(randomValue,botName);
     sleepDuration(turnSeconds);
-    return;
+
 }
 
 
 void game(int dieFaceValue,string player){
+
     if(botOpened == false && player==botName){
+
         if(dieFaceValue == dieFaceCount){
             botOpened = true;
-            cout << player << " Opened His Piece !\n";
-        }else{
-            cout << "Try To Get '6' To Open Your Piece !\n";
+            cout << player << " OPENED HIS PIECE !\n";
+        }
+        else{
+            cout << "TRY TO GET '6' TO OPEN YOUR PIECE !\n";
         }
         return;
+
     }
     else if(humanOpenend == false && player==playerName){
-          if(dieFaceValue == dieFaceCount){
+
+        if(dieFaceValue == dieFaceCount){
             humanOpenend = true;
-            cout << player << " Opened His Piece !\n";
-        }else{
-            cout << "Try To Get '6' To Open Your Piece !\n";
+            cout << player << " OPENED HIS PIECE !\n";
+        }
+        else{
+            cout << "TRY TO GET '6' TO OPEN YOUR PIECE !\n";
         }
         return;
     }
     else{
         if(player == playerName){
+
             int playerNewPosition = dieFaceValue+playerPositionOnBoard;
             changePlayerPosition(playerNewPosition);
             checkSnakeOrLadder(playerNewPosition,player);
-        }else{
+        }
+        else{
+
             int botNewPosition = dieFaceValue+botPositionOnBoard;
             changeBotPosition(botNewPosition);
             checkSnakeOrLadder(botNewPosition,player);
@@ -176,93 +231,129 @@ void changeBotPosition(int newPosition){
 }
 
 void checkSnakeOrLadder(int newPosition,string player){
-    //If found in snake map
+
+    //If found in snake map, change position as mapped in snake map
     if(snake.count(newPosition)){
-        cout <<player << " Got Bitten By Snake !\n";
+
+        cout <<player << " GOT BITTEN BY SNAKE\n";
+
         if(player == playerName){
             changePlayerPosition(snake[newPosition]);
-        }else{
+        }
+        else{
             changeBotPosition(snake[newPosition]);
         }
     }
+    //If found in ladder map, change position as mapped in ladder map
     else if(ladder.count(newPosition)){
-        cout <<player <<" Got A Ladder !\n";
+
+        cout <<player <<" GOT A LADDER !\n";
+
         if(player == playerName){
             changePlayerPosition(ladder[newPosition]);
-        }else{
+        }
+        else{
             changeBotPosition(ladder[newPosition]);
         }
     }
+    //move to new position 
     else{
+
         if(player == playerName){
             changePlayerPosition(newPosition);
-            cout << player << " Moved To Position : "<<playerPositionOnBoard << endl;
-        }else{
+            cout << player << " MOVED TO POSITION : "<< playerPositionOnBoard << endl;
+        }
+        else{
             changeBotPosition(newPosition);
-            cout << player << " Moved To Position : "<<botPositionOnBoard << endl;
+            cout << player << " MOVED TO POSITION : "<< botPositionOnBoard << endl;
         }
     }
 }
 
 
 int toss(){
-    clrscr();
+
     int tossVal =  getRandom();
     int playerFlag;
+
+    clrscr();
+
     if(tossVal % 2 != 0){
-        cout << playerName << " won the TOSS, will PLAY first !\n";
+        cout << playerName << " WON THE TOSS, WILL PLAY FIRST !\n";
         playerFlag = 1;
-    }else{
-        cout << botName << " won the TOSS, will PLAY first !\n";
+    }
+    else{
+        cout << botName << " WON THE TOSS, WILL PLAY FIRST !\n";
         playerFlag = 0;
     }
+
     sleepDuration(turnSeconds);
+
     return playerFlag;
 }
 
 
 int getRandom(){
-    return ((rand()% dieFaceCount + 1)+(rand()% dieFaceCount + 1)+(rand()% dieFaceCount + 1)) % dieFaceCount + 1;
+
+    // obtain a random number from hardware
+    random_device rd; 
+    // seed the generator
+    mt19937 eng(rd()); 
+    // define the range
+    uniform_int_distribution<> distr(1, 6);
+
+    return distr(eng);
 }
 
 void welcomePlayer(){
+
     clrscr();
-    printFileContent("welcome_letsplay.txt");
+    printFileContent("assets/welcome_letsplay.txt");
     sleepDuration(welcomeSeconds);
 }
 
 void getPlayerIntro(){
+
     clrscr();
-    cout << "Enter your Name : ";
+
+    cout << "ENTER YOUR NAME : ";
     cin >> playerName;
 }
 
 bool getPlayerPlayChoice(){
+
     int choice;
+
     do{
         clrscr();
-        cout << "Hello " << playerName << " ! Are you ready ?(1/0)";
+
+        cout << "HELLO " << playerName << " ! ARE YOU READY ?(1/0)";
         cin >> choice;
+
         if(choice == 0){
             return false;
         }
-        if(choice == 1){
+        else if(choice == 1){
             return true;
         }
+
     }while(1);
 }
 
 
 void seeYouLater(){
+
     clrscr();
-    printFileContent("see_you_later.txt");
+    printFileContent("assets/see_you_later.txt");
     sleepDuration(lostMessageSeconds);
 }
 
 
 void loadGame(){
+
     clrscr();
-    cout << "Loading game.....\n";
+
+    cout << "LOADING GAME....................\n";
 
     snake.insert(pair <int, int> (17,13));
 
@@ -293,46 +384,54 @@ void loadGame(){
     ladder.insert(pair <int, int> (90,91));
 
     sleepDuration(turnSeconds);
-    cout << "Loaded !\n";
-    sleepDuration(turnSeconds);
+
+    cout << "LOADED !\n";
+
 }
 
 void sleepDuration(unsigned int duration){
+
     usleep(duration);
 }
 
 void clrscr(){
+
     system("clear");
 }
 
 void printFileContent(string filename){
-
-    ifstream Reader (filename);             //Open file
-
-    string Art = getFileContents (Reader);       //Get file
-    
-    cout << Art << endl;               //Print it to the screen
-
-    Reader.close ();                           //Close file
+    //Open file
+    ifstream Reader (filename);             
+    //Get file
+    string Art = getFileContents (Reader);      
+    //Print it to the screen
+    cout << Art << endl;               
+    //Close file
+    Reader.close ();                          
 }
 
 string getFileContents (ifstream& File){
-    string Lines = "";        //All lines
-    
-    if (File)                      //Check if everything is good
+    //All lines
+    string Lines = "";        
+    //Check if everything is good
+    if (File)                      
     {
         while (File.good ())
         {
-            string TempLine;                  //Temp line
-            getline (File , TempLine);        //Get temp line
-            TempLine += "\n";                      //Add newline character
-            
-            Lines += TempLine;                     //Add newline
+            //Temp line
+            string TempLine; 
+            //Get temp line                 
+            getline (File , TempLine);
+            //Add newline character        
+            TempLine += "\n";                      
+            //Add newline
+            Lines += TempLine;                    
         }
         return Lines;
     }
-    else                           //Return error
+    else                           
     {
+        //Return error
         return "ERROR File does not exist.";
     }
 }
