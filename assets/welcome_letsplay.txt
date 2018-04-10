@@ -16,12 +16,4 @@
 
 ----------------------------------------------------------------------------------
 
-  
-     GAME RULES :- 
-     
-     1. Game start only if a player gets 6, until then each player will get only one chance
-     2. Once opened, new positions will be evaluated based on die face value
-     3. If new position exist in snake map, or ladder map change position based on key value
-     4. Player who secure 100 position first, will win !
-
 			                                                     
