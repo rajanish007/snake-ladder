@@ -555,7 +555,7 @@ void loadGame(){
 
     snake.insert(pair <int, int> (95,51));
 
-    snake.insert(pair <int, int> (97,79));
+    snake.insert(pair <int, int> (99,79));
    
 
     //ladder <currentPosition, positionAfterClimbingLadder>   
@@ -569,7 +569,7 @@ void loadGame(){
 
     ladder.insert(pair <int, int> (75,86));
 
-    ladder.insert(pair <int, int> (80,99));
+    ladder.insert(pair <int, int> (80,98));
 
     ladder.insert(pair <int, int> (90,91));
 
