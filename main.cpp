@@ -102,8 +102,6 @@ int main(){
 
         loadGame();
 
-        cout << tossResult;
-
         startGame(tossResult);
 
     }else{
@@ -178,15 +176,15 @@ void welcomePlayer(){
 *
 */
 int toss(){
-
-    //get random number to set criteria for first play
-    int tossVal =  getRandom();
     
     //flag for player who won toss
     int playerFlag;
     char playerChoice;
+    int tossVal;
 
     do{
+        //get random number to set criteria for first play
+        tossVal =  getRandom();
         clrscr();
         cout << "YOUR CALL (h/t) : ";
         cin >> playerChoice;
@@ -407,7 +405,7 @@ void changePlayerPosition(int newPosition){
 
     //set player current position to new position
     if(newPosition > maxScore){
-        cout << "Need "<< newPosition-maxScore << " To reach 100 !\n";
+        cout << "Need "<< playerPositionOnBoard-maxScore << " To reach 100 !\n";
     }
     else{
         playerPositionOnBoard = newPosition;
@@ -422,7 +420,7 @@ void changeBotPosition(int newPosition){
 
     //set bot current position to new position
     if(newPosition > maxScore){
-        cout << "Need "<< newPosition-maxScore << " To reach 100 !\n";
+        cout << "Need "<< botPositionOnBoard-maxScore << " To reach 100 !\n";
     }
     else{
         botPositionOnBoard = newPosition;
@@ -470,12 +468,12 @@ void checkSnakeOrLadder(int newPosition,string player){
     //move to new position 
     else{
 
-        if(player == playerName){
+        if(player == playerName && newPosition < maxScore){
 
             changePlayerPosition(newPosition);
             cout << player << " MOVED TO POSITION : "<< playerPositionOnBoard << endl;
         }
-        else{
+        else if(player == botName && newPosition < maxScore){
 
             changeBotPosition(newPosition);
             cout << player << " MOVED TO POSITION : "<< botPositionOnBoard << endl;
@@ -606,33 +604,19 @@ void printUserReference(){
 //Search for currentPosition in Snake map
 bool ifGotSnake(int currentPosition){
 
-    map <int, int> :: iterator itr;
-
-    for (itr = snake.begin(); itr != snake.end(); ++itr)
-    {
-        if((itr->first) == currentPosition){
-            return true;
-        }
-        else{
-            return false;
-        }
+    if(snake.count(currentPosition)){
+        return true;
     }
+    return false;
 }
 
 //Search for currentPosition in Ladder map
 bool ifGotLadder(int currentPosition){
 
-    map <int, int> :: iterator itr;
-
-    for (itr = ladder.begin(); itr != ladder.end(); ++itr)
-    {
-        if((itr->first) == currentPosition){
-            return true;
-        }
-        else{
-            return false;
-        }
+    if(ladder.count(currentPosition)){
+        return true;
     }
+    return false;
 }
 
 /*
